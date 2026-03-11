@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-
+from werkzeug.security import generate_password_hash
 from models import db, User
 from schemas import user_schema, users_schema
 
@@ -10,11 +10,13 @@ bp = Blueprint('users', __name__)
 def create_user():
 
     data = request.get_json()
-
+    hashed_password = generate_password_hash(data["password"])
+    
     user = User(
         name=data['name'],
         age=data['age'], 
-        email=data['email']
+        email=data['email'],
+        password=hashed_password
     )
     db.session.add(user)
     db.session.commit()
@@ -68,3 +70,18 @@ def delete_user(id):
     db.session.commit()
 
     return {"message": "User deleted"}, 200
+
+@bp.route("/login", methods=["POST"])
+def login():
+
+    data = request.json()
+
+    user = User.query.filter_by(email=data["email"]).first()
+
+    if not user:
+        return {'error': 'User not found'}, 404
+
+    if not check_password_hash(user.password, data["password"]):
+        return {'error': 'Invalid password'}, 401
+
+    return {"message": "Login successful"}, 200
