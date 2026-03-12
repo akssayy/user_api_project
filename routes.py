@@ -8,7 +8,7 @@ bp = Blueprint('users', __name__)
 
 @bp.route('/users', methods=['POST'])
 def create_user():
-
+    from werkzeug.security import generate_password_hash
     data = request.get_json()
     hashed_password = generate_password_hash(data["password"])
     
