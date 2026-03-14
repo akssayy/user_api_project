@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User
 from schemas import user_schema, users_schema
 
@@ -74,7 +74,7 @@ def delete_user(id):
 @bp.route("/login", methods=["POST"])
 def login():
 
-    data = request.json()
+    data = request.json
 
     user = User.query.filter_by(email=data["email"]).first()
 
